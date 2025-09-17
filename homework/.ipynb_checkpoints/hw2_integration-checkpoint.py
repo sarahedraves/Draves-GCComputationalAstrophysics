@@ -18,51 +18,68 @@ def f(t): #also tested this one by having wolfram alpha plot the erf(x) from 0 t
 def main():
     #create parser and add arguments
     parser=argparse.ArgumentParser()
-    parser.add_argument('N',
-                        default=10,
-                        type=int,
-                        help='Number of steps for integration (NOT for spacing of x values along plot). For Simpsons: must be even and recommended 10+ steps. For Trapezoid: recommended 1000+ steps. For Gaussian Quadrature: recommended 3+ steps.') 
     parser.add_argument('--intmethod',
                         choices=['simpsons','trapezoid','gaussianquad'],
                         default='simpsons',
                         type=str.lower,
                         help='Method of integration (default: Simpsons)') #asked claude for help with the syntax of only having a few valid inputs and it also recommended how to make it not case sensitive
+    parser.add_argument('--adaptive',
+                        default=False,
+                        action='store_true',
+                        help='When this flag is used, the integration will be adaptive and continue until the tolerance level epsilon is reached. The parameter epsilon is used and the parameter N is not. Does not work if gaussianquad is the chosen integration method. Currently the interative steps are not nested (perhaps later).')
+    parser.add_argument('-N',
+                        default=10,
+                        type=int,
+                        help='Number of steps for integration (NOT for spacing of x values along plot). For Simpsons: must be even and recommended 10+ steps. For Trapezoid: recommended 1000+ steps. For Gaussian Quadrature: recommended 3+ steps. Used unless adaptive flag is true. Default is 10.') 
+    parser.add_argument('--epsilon',
+                        default=10**-5,
+                        type=float,
+                        help='Error tolerance for adaptive integration. Used if adaptive flag is true. Default is 10^-5.')
     parser.add_argument('--plotlowerbound',
                         default=0,
                         type=float,
-                        help='Lower bound of plotted domain for E(x)')
+                        help='Lower bound of plotted domain for E(x).')
     parser.add_argument('--plotupperbound',
                         default=3,
                         type=float,
-                        help='Upper bound of plotted domain for E(x)')
+                        help='Upper bound of plotted domain for E(x).')
     parser.add_argument('--plotxspacing',
                         default=0.1,
                         type=float,
-                        help='Spacing of x points in E(x) plot (NOT step size used in integration)')
+                        help='Spacing of x points in E(x) plot (NOT step size used in integration).')
     parser.add_argument('--plotline',
                         default=False,
                         action='store_true',
-                        help='When this flag is used, the plot is a smooth line instead of a scatterplot')
+                        help='When this flag is used, the plot is a smooth line instead of a scatterplot.')
     parser.add_argument('--printpoints',
                         default=False,
                         action='store_true',
-                        help='When this flag is used, the x and E(x) arrays are printed')
+                        help='When this flag is used, the x and E(x) arrays are printed.')
 
     #parse arguments
     args=parser.parse_args()
-    N=args.N
     intmethod=args.intmethod
+    adaptive=args.adaptive
+    N=args.N
+    epsilon=args.epsilon
     plotlowerbound=args.plotlowerbound
     plotupperbound=args.plotupperbound
     plotxspacing=args.plotxspacing
     plotline=args.plotline
     printpoints=args.printpoints
+
+    #restrictions on which inputs work together
+    if adaptive and intmethod=='gaussianquad':
+        print("Can't use adaptive integration with gaussianquad integration method.")
+        return
     
     #create a dictionary of integration methods
     #i asked claude if this was possible and it showed me how to then call the functions
     intmethods={'trapezoid':trapezoid,
                 'simpsons':simpsons,
-                'gaussianquad':gaussquad}
+                'gaussianquad':gaussquad,
+                'adaptivetrapezoid':adaptivetrapezoid,
+                'adaptivesimpsons':adaptivesimpsons}
     #now should be able to call the chosen integration method with intmethods[intmethod]()
     #this does mean they all have to have the same arguments
      
@@ -72,9 +89,14 @@ def main():
     #generate empty array which will later store E(x) values
     Es=np.zeros(Xs.size)
 
-    #perform integration
-    for i in range(Xs.size):
-        Es[i]=intmethods[intmethod](f,0,Xs[i],N=N) #integrate f from 0 to x
+    #perform integration for each x value
+    if adaptive==False:
+        for i in range(Xs.size):
+            Es[i]=intmethods[intmethod](f,0,Xs[i],N=N) #integrate f from 0 to x
+    else: #adaptive==True
+        method='adaptive'+intmethod
+        for i in range (Xs.size):
+            Es[i]=intmethods[method](f,0,Xs[i],epsilon=epsilon)
 
     #print points
     if printpoints:
@@ -88,7 +110,11 @@ def main():
         plt.scatter(Xs,Es,color='deeppink')
     plt.xlabel(r'$x$')
     plt.ylabel(r'$E(x)$')
-    plt.title(r'$E(x)$ vs $x$ where $E(x)$ is the error function'+'\nwith '+intmethod+' integration and '+str(N)+' steps')
+    if adaptive:
+        title=r'$E(x)$ vs $x$ where $E(x)$ is the error function'+'\nwith adaptive '+intmethod+' integration and '+str(epsilon)+' error tolerance'
+    else: #adaptive==False
+        title=r'$E(x)$ vs $x$ where $E(x)$ is the error function'+'\nwith '+intmethod+' integration and '+str(N)+' steps'
+    plt.title(title)
     plt.show()
 
 if __name__=="__main__":

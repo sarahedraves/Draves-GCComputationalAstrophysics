@@ -1,6 +1,6 @@
 from gaussxw import *
 
-def trapezoid(function, a, b, N=10):
+def trapezoid(function, a, b, N=10, adaptive=False):
     deltax=(b-a)/N
     mysum=0
     for k in range(1,N+1): #goes to N since range doesn't include the endpoint
@@ -25,3 +25,35 @@ def gaussquad(function,a,b,N=3):
     for k in range(0,N):
         mysum+=weights[k]*function(points[k])
     return mysum
+
+def errortest(calctype,I1,I2):
+    if calctype=='trapezoid':
+        return (1/3)*abs(I2-I1)
+    elif calctype=='simpsons':
+        return (1/15)*abs(I2-I1)
+    else:
+        print("Can't estimate error for this calc type.")
+
+def adaptivetrapezoid(function, a, b, epsilon=10**-5):
+    N=2
+    I1=trapezoid(function,a,b,N=N)
+    I2=trapezoid(function,a,b,N=N*2)
+    error=errortest('trapezoid',I1,I2)
+    while error>epsilon:
+        N*=2
+        I1=I2
+        I2=trapezoid(function,a,b,N=N*2)
+        error=errortest('trapezoid',I1,I2)
+    return I2
+
+def adaptivesimpsons(function, a, b, epsilon=10**-5):
+    N=2
+    I1=simpsons(function,a,b,N=N)
+    I2=simpsons(function,a,b,N=N*2)
+    error=errortest('simpsons',I1,I2)
+    while error>epsilon:
+        N*=2
+        I1=I2
+        I2=simpsons(function,a,b,N=N*2)
+        error=errortest('simpsons',I1,I2)
+    return I2
