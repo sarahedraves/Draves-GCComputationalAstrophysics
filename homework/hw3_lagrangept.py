@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import astropy.units as u
 import astropy.constants as const
 sys.path.append(os.path.join('..', 'importantfunctions'))
-from nonlinearsolvingmethods import *
+from nonlinearsolvingmethods import * #see this file for newton, secant, and bisection methods
 
 def Lagrange(r): #input must be a quantity with units u.m
     #constants
@@ -50,7 +50,7 @@ def main():
     #create parser and add arguments
     parser=argparse.ArgumentParser()
     parser.add_argument('--solvemethod',
-                        choices=['newton','secant'],
+                        choices=['newton','secant','bisection'],
                         default='secant',
                         type=str.lower,
                         help='Method of integration (default: secant)')
@@ -67,6 +67,10 @@ def main():
     elif method=='newton':
         x1=3.26e8*u.m #see hw3_playground notebook for how I determined the starting guesses
         root=Newton(Lagrange2,Lprime,x1,tol=1e-4) #four sig figs - any more and it will hit the maxits limit. still takes a few seconds.
+    elif method=='bisection':
+        xl=3.2e8*u.m #see hw3_playground notebook for how I determined the starting guesses
+        xr=3.3e8*u.m
+        root=bisection(Lagrange2,xl,xr,tol=1e-6 )
     print(f'L1 point is {root.value:.5e} {root.unit} from Earth along the direct path to the Moon.')
 
 if __name__=="__main__":
