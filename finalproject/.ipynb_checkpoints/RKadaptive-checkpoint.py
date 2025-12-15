@@ -27,7 +27,7 @@ def adaptivestep(f,r,t,h,tol,*args):
 
     hog=h
     if abs(x1-x2)<1e-15: #won't be able to calculate rho if this is less than machine precision because will get divide by 0 error
-        return x2,t2,h
+        return x2,t2,h*2 #if they are already this close on the first try, double the step size
 
     rho=rhoratio(x1,x2,h,tol)
     

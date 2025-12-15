@@ -101,8 +101,9 @@ def animate(Ts,Rs,colors,trailing=True,filename=None):
                                  interval=50,repeat=True,blit=True)
     if filename is not None:
         anim.save(f'{filename}.gif',writer='pillow',fps=20)
+    return anim
 
-def plot(Ts,Rs,colors,filename=None):
+def plotnohs(Ts,Rs,colors,filename=None):
     #colors should be something like colors=["deeppink","green","blue"]
 
     numobjects=Rs.shape[1]//4 #because four fields per object and want it to be an int
@@ -132,10 +133,70 @@ def plot(Ts,Rs,colors,filename=None):
     ax.set_xlim(Xmin-0.1*width,Xmax+0.1*width)
     ax.set_ylim(Ymin-0.1*height,Ymax+0.1*height)
 
-    line_step=len(Ts)//10000 #only do this many points
+    line_step=1
+    if len(Ts)>10000:
+        line_step=len(Ts)//10000 #only do this many points
+        
     for i in range(numobjects):
         line_color = colors[i]
         ax.plot(Xs[i][::line_step], Ys[i][::line_step], color=line_color)
 
     if filename is not None:
         fig.savefig(f'{filename}.png')
+    return fig
+
+def ploths(Ts,Rs,Hs,colors,filename=None):
+    #colors should be something like colors=["deeppink","green","blue"]
+
+    numobjects=Rs.shape[1]//4 #because four fields per object and want it to be an int
+
+    #create lists of arrays for coordinates
+    Xs=[]
+    Ys=[]
+    for i in range(numobjects):
+        Xs.append(Rs[:,4*i])
+        Ys.append(Rs[:,4*i+1])
+
+    fig,axs=plt.subplots(1,2,figsize=(10,4))
+
+    axs[0].set_xlabel('X coordinate')
+    axs[0].set_ylabel('Y coordinate')
+    axs[0].set_title(f'Paths of the {numobjects} Objects')
+
+    #set the limits of the plot to be the range of the points with a buffer zone
+    allX=np.concatenate(Xs)
+    allY=np.concatenate(Ys)
+    Xmax=allX.max()
+    Xmin=allX.min()
+    Ymax=allY.max()
+    Ymin=allY.min()
+    width=Xmax-Xmin
+    height=Ymax-Ymin
+    axs[0].set_xlim(Xmin-0.1*width,Xmax+0.1*width)
+    axs[0].set_ylim(Ymin-0.1*height,Ymax+0.1*height)
+
+    line_step=1
+    if len(Ts)>10000:
+        line_step=len(Ts)//10000 #only do this many points
+
+    for i in range(numobjects):
+        line_color = colors[i]
+        axs[0].plot(Xs[i][::line_step], Ys[i][::line_step], color=line_color)
+
+    axs[1].plot(Ts,np.log10(Hs),color='black')
+    axs[1].set_xlabel('t')
+    axs[1].set_ylabel('log10(h)')
+    axs[1].set_title('Step-Size vs Time')
+
+    plt.tight_layout()
+    
+    if filename is not None:
+        fig.savefig(f'{filename}.png')
+    return fig
+
+def plot(Ts,Rs,Hs,plotHs,colors,filename=None):
+    if Hs is not None and plotHs==True:
+        return ploths(Ts,Rs,Hs,colors,filename=filename)
+    else:
+        return plotnohs(Ts,Rs,colors,filename=filename)
+        

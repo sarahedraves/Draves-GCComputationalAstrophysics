@@ -27,7 +27,7 @@ def adaptivestep(f,errf,r,t,h,tol,*args):
 
     hog=h
     if errf(r1,r2)<1e-15: #won't be able to calculate rho if this is less than machine precision because will get divide by 0 error
-        return r2,t2,h
+        return r2,t2,h*2 #if they are already this close on the first try, double the step size
 
     rho=rhoratio(errf,r1,r2,h,tol)
     
@@ -46,13 +46,15 @@ def adaptivestep(f,errf,r,t,h,tol,*args):
 def RK4adapt(f,errf,r0,t_range,*args,hstart=1e-3,tol=1e-12): #errf needs to be a function that specifies how the error is calculated
     r_list=[np.array(r0)] #now holds a list of arrays
     t_list=[t_range[0]]
+    h_list=[hstart]
     h=hstart
 
     while t_list[-1]<t_range[1]:
         rnew,tnew,h=adaptivestep(f,errf,r_list[-1],t_list[-1],h,tol,*args)
         r_list.append(rnew)
         t_list.append(tnew)
+        h_list.append(h)
 
-    return np.array(t_list), np.array(r_list)
+    return np.array(t_list), np.array(r_list), np.array(h_list)
 
     
