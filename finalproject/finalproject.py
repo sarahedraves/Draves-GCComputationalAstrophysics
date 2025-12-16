@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import scipy
 import argparse
+import time
 from RKadaptivemultieq import *
 from diffeqs import *
 from diffeqs_forscipy import *
-from plottingfns import * #still have to update animate to handle varying size time steps
+from plottingfns import * 
 from getICs import *
 from errorfunctions import *
 import sys
@@ -36,7 +37,7 @@ def main():
                         choices=['recommended','random','input'],
                         default='recommended',
                         type=str.lower,
-                        help="Choose whether to use the recommended initial conditions for the given scenario, generate random ones, or input your own. Default: recommended.")
+                        help="Choose whether to use the recommended initial conditions for the given scenario, generate random ones, or input your own. Note that occasionally the random ICs will need a very small step size to render correctly and it will take too long (>1 minute), so in that case just break out of the program (ctrl + c on MAC) and run it again, potentially with the scipy_rk45 solver if doing more than two bodies. Default: recommended.")
     parser.add_argument('--filename',
                         default='None',
                         type=str,
@@ -60,16 +61,17 @@ def main():
     maxT=args.maxT
     plotHs=args.plotHs
 
-    #set ICs - update
+    #set ICs 
     R0=getICs(scenario,ICchoice)
     if ICchoice=='random':
-        print(R0)
+        print('ICs: ',R0) #this was initially for testing but I think it's actually interesting to know
     
     #run simulation
     t_span=(0,maxT)
     Ts=None
     Rs=None
     Hs=None #will only get filled in if using adaptive method
+    start=time.time()
     if solver=='scipy_rk45': #using really low tolerances for all of these because it's so fast anyways
         Ts=np.linspace(t_span[0],t_span[1],10000)
         if scenario=='threestars':
@@ -112,6 +114,10 @@ def main():
             Ts,Rs,Hs=RK4adapt(twostarsandplanet,errf_threebody,R0,t_span,hstart=1e-6,tol=1e-12)
         elif scenario=='oneorbit':
             Ts,Rs,Hs=RK4adapt(oneorbit,errf_onebody,R0,t_span,hstart=1e-6,tol=1e-12)
+        if 'animate' in displaychoice:
+            Ts,Rs=resample(Ts,Rs) #necessary because otherwise the animation will be slowest when bodies are close to each other because of point density but really that's when they should be moving fastest. function is in plottingfns.py. don't want to do that if just doing a regular plot though so we can plot H vs T if desired.
+    end=time.time()
+    print(f'Solver took {(end-start):.4f} seconds to run.')
             
     #display results
     if filename=='None':
@@ -124,7 +130,7 @@ def main():
         anim=animate(Ts,Rs,colors,trailing=False,filename=filename)
     elif displaychoice=='animatetrailingpath':
         anim=animate(Ts,Rs,colors,filename=filename)
-    plt.show() #consider adding another plot of time vs h for when adaptive integrator is used
+    plt.show() 
 
 if __name__=="__main__":
     main()

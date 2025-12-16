@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from scipy.interpolate import CubicSpline
 
 def getcolors(scenario,displaychoice):
     if scenario=='threestars':
@@ -199,4 +200,14 @@ def plot(Ts,Rs,Hs,plotHs,colors,filename=None):
         return ploths(Ts,Rs,Hs,colors,filename=filename)
     else:
         return plotnohs(Ts,Rs,colors,filename=filename)
-        
+
+
+def resample(Ts,Rs,N=10000): #modified from ChatGPT after I asked it how to do time-uniform resampling of my Ts and Rs arrays
+    Ts_uniform = np.linspace(Ts[0], Ts[-1], N)
+    Rs_uniform = np.empty((N, Rs.shape[1]))
+
+    for i in range(Rs.shape[1]):
+        cs = CubicSpline(Ts, Rs[:, i])
+        Rs_uniform[:, i] = cs(Ts_uniform)
+
+    return Ts_uniform, Rs_uniform
