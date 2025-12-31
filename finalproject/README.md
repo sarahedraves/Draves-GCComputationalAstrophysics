@@ -3,6 +3,8 @@
 
 **Author:** Sarah Draves  
 
+**TL;DR:** A computational physics project implementing and benchmarking a custom adaptive RK4 integrator for chaotic gravitational N-body systems, with visualization and animation of multi-body dynamics inspired by *The Three-Body Problem*.
+
 ## Overview
 This project explores numerical solutions to the classical gravitational *N-body problem* through the lens of the fictional planet **Trisolaris** from *The Three-Body Problem* by Liu Cixin. Motivated by the chaotic dynamics experienced by a planet orbiting multiple stars, the project focuses on accurately and efficiently integrating equations of motion using adaptive time-stepping methods.
 
@@ -69,4 +71,4 @@ This produces smooth, physically faithful animations while preserving adaptive a
   https://observablehq.com/@rreusser/periodic-planar-three-body-orbits
 - SciPy documentation
 
-Note: this readme was crafted by ChatGPT after uploading my final project slides, which are in this folder.
+Note: this readme was crafted by ChatGPT after uploading my final project slides, which are in this folder [here](https://github.com/sarahedraves/Draves-GCComputationalAstrophysics/finalproject/finalpresentation.pdf).
