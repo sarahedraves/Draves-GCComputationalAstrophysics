@@ -71,4 +71,4 @@ This produces smooth, physically faithful animations while preserving adaptive a
   https://observablehq.com/@rreusser/periodic-planar-three-body-orbits
 - SciPy documentation
 
-Note: this readme was crafted by ChatGPT after uploading my final project slides, which are in this folder [here](https://github.com/sarahedraves/Draves-GCComputationalAstrophysics/finalproject/finalpresentation.pdf).
+Note: this readme was crafted by ChatGPT after uploading my final project slides, which are in this folder [here](https://github.com/sarahedraves/Draves-GCComputationalAstrophysics/blob/main/finalproject/finalpresentation.pdf).
