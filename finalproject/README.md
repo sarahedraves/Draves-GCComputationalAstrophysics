@@ -68,3 +68,5 @@ This produces smooth, physically faithful animations while preserving adaptive a
 - R. Reusser, *Periodic Planar Three-Body Orbits*  
   https://observablehq.com/@rreusser/periodic-planar-three-body-orbits
 - SciPy documentation
+
+Note: this readme was crafted by ChatGPT after uploading my final project slides, which are in this folder.
