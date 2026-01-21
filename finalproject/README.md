@@ -65,7 +65,7 @@ This produces smooth, physically faithful animations while preserving adaptive a
 
 ## Sources and References
 - Liu Cixin, *The Three-Body Problem*
-- *The Three-Body Problem* (Netflix adaptation)
+- *3 Body Problem* (Netflix adaptation)
 - Wikipedia: Three-body problem
 - R. Reusser, *Periodic Planar Three-Body Orbits*  
   https://observablehq.com/@rreusser/periodic-planar-three-body-orbits
